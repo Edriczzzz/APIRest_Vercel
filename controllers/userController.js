@@ -11,9 +11,9 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Faltan credenciales" });
     }
 
-    // Buscar usuario en la base de datos
+    // Buscar usuario en la base de datos (tabla Users con mayúscula)
     const [rows] = await pool.query(
-      "SELECT * FROM users WHERE username = ?",
+      "SELECT * FROM Users WHERE username = ?",
       [username]
     );
 
