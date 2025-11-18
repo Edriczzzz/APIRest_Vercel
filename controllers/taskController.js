@@ -2,7 +2,7 @@ import pool from "../db.js";
 
 export const getTasks = async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM tasks");
+    const [rows] = await pool.query("SELECT * FROM task");
     
     // Convertir status de 0/1 a false/true
     const tasks = rows.map(task => ({
@@ -20,7 +20,7 @@ export const getTasks = async (req, res) => {
 export const getTask = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT * FROM tasks WHERE id = ?", 
+      "SELECT * FROM task WHERE id = ?", 
       [req.params.id]
     );
     
@@ -45,7 +45,7 @@ export const createTask = async (req, res) => {
     }
     
     const [result] = await pool.query(
-      "INSERT INTO tasks (name, deadline, status) VALUES (?, ?, ?)",
+      "INSERT INTO task (name, deadline, status) VALUES (?, ?, ?)",
       [name, deadline || null, status ? 1 : 0]
     );
     
@@ -67,7 +67,7 @@ export const updateTask = async (req, res) => {
     
     // Verificar que la tarea existe
     const [existing] = await pool.query(
-      "SELECT * FROM tasks WHERE id = ?",
+      "SELECT * FROM task WHERE id = ?",
       [req.params.id]
     );
     
@@ -76,7 +76,7 @@ export const updateTask = async (req, res) => {
     }
     
     await pool.query(
-      "UPDATE tasks SET name = ?, deadline = ?, status = ? WHERE id = ?",
+      "UPDATE task SET name = ?, deadline = ?, status = ? WHERE id = ?",
       [name, deadline || null, status ? 1 : 0, req.params.id]
     );
     
@@ -93,7 +93,7 @@ export const updateTask = async (req, res) => {
 export const deleteTask = async (req, res) => {
   try {
     const [result] = await pool.query(
-      "DELETE FROM tasks WHERE id = ?", 
+      "DELETE FROM task WHERE id = ?", 
       [req.params.id]
     );
     
