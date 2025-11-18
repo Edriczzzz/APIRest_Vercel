@@ -12,7 +12,7 @@ export const login = async (req, res) => {
 
     // Buscar usuario en la base de datos
     const [rows] = await pool.query(
-      "SELECT * FROM Users WHERE username = ?",
+      "SELECT * FROM users WHERE username = ?",
       [username]
     );
 
@@ -59,7 +59,7 @@ export const register = async (req, res) => {
 
     // Verificar si el usuario ya existe
     const [existing] = await pool.query(
-      "SELECT * FROM Users WHERE username = ?",
+      "SELECT * FROM users WHERE username = ?",
       [username]
     );
 
@@ -72,7 +72,7 @@ export const register = async (req, res) => {
 
     // Insertar usuario
     const [result] = await pool.query(
-      "INSERT INTO Users (username, email, password) VALUES (?, ?, ?)",
+      "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
       [username, username + "@example.com", passwordHash]
     );
 
@@ -91,7 +91,7 @@ export const register = async (req, res) => {
 export const getUsers = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT id, username, email FROM Users"
+      "SELECT id, username, email FROM users"
     );
     res.json(rows);
   } catch (error) {
@@ -104,7 +104,7 @@ export const getUsers = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT id, username, email FROM Users WHERE id = ?",
+      "SELECT id, username, email FROM users WHERE id = ?",
       [req.params.id]
     );
 
@@ -144,7 +144,7 @@ export const updateUser = async (req, res) => {
     values.push(req.params.id);
 
     await pool.query(
-      `UPDATE Users SET ${updates.join(", ")} WHERE id = ?`,
+      `UPDATE users SET ${updates.join(", ")} WHERE id = ?`,
       values
     );
 
@@ -158,7 +158,7 @@ export const updateUser = async (req, res) => {
 // Eliminar usuario
 export const deleteUser = async (req, res) => {
   try {
-    await pool.query("DELETE FROM Users WHERE id = ?", [req.params.id]);
+    await pool.query("DELETE FROM users WHERE id = ?", [req.params.id]);
     res.json({ message: "Usuario eliminado exitosamente" });
   } catch (error) {
     console.error("Error en deleteUser:", error);
