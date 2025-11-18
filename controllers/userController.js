@@ -1,8 +1,7 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
 import pool from "../db.js";
 
-// Login de usuario
+// Login de usuario (SIN bcrypt - contraseña en texto plano)
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -11,7 +10,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Faltan credenciales" });
     }
 
-    // Buscar usuario en la base de datos (tabla Users con mayúscula)
+    // Buscar usuario en la base de datos
     const [rows] = await pool.query(
       "SELECT * FROM Users WHERE username = ?",
       [username]
@@ -23,9 +22,8 @@ export const login = async (req, res) => {
 
     const user = rows[0];
 
-    // Verificar contraseña
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) {
+    // Verificar contraseña (texto plano)
+    if (password !== user.password) {
       return res.status(401).json({ message: "Contraseña incorrecta" });
     }
 
@@ -40,7 +38,8 @@ export const login = async (req, res) => {
       token,
       user: {
         id: user.id,
-        username: user.username
+        username: user.username,
+        email: user.email
       }
     });
   } catch (error) {
@@ -60,7 +59,7 @@ export const register = async (req, res) => {
 
     // Verificar si el usuario ya existe
     const [existing] = await pool.query(
-      "SELECT * FROM users WHERE username = ?",
+      "SELECT * FROM Users WHERE username = ?",
       [username]
     );
 
@@ -73,8 +72,8 @@ export const register = async (req, res) => {
 
     // Insertar usuario
     const [result] = await pool.query(
-      "INSERT INTO users (username, password) VALUES (?, ?)",
-      [username, passwordHash]
+      "INSERT INTO Users (username, email, password) VALUES (?, ?, ?)",
+      [username, username + "@example.com", passwordHash]
     );
 
     res.status(201).json({
@@ -92,7 +91,7 @@ export const register = async (req, res) => {
 export const getUsers = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT id, username FROM users"
+      "SELECT id, username, email FROM Users"
     );
     res.json(rows);
   } catch (error) {
@@ -105,7 +104,7 @@ export const getUsers = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT id, username FROM users WHERE id = ?",
+      "SELECT id, username, email FROM Users WHERE id = ?",
       [req.params.id]
     );
 
@@ -145,7 +144,7 @@ export const updateUser = async (req, res) => {
     values.push(req.params.id);
 
     await pool.query(
-      `UPDATE users SET ${updates.join(", ")} WHERE id = ?`,
+      `UPDATE Users SET ${updates.join(", ")} WHERE id = ?`,
       values
     );
 
@@ -159,7 +158,7 @@ export const updateUser = async (req, res) => {
 // Eliminar usuario
 export const deleteUser = async (req, res) => {
   try {
-    await pool.query("DELETE FROM users WHERE id = ?", [req.params.id]);
+    await pool.query("DELETE FROM Users WHERE id = ?", [req.params.id]);
     res.json({ message: "Usuario eliminado exitosamente" });
   } catch (error) {
     console.error("Error en deleteUser:", error);
