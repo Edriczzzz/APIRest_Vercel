@@ -60,14 +60,21 @@ export const createTask = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 export const updateTask = async (req, res) => {
   try {
     const { name, deadline, status } = req.body;
     
+    console.log('📥 Recibiendo actualización:', {
+      id: req.params.id,
+      name,
+      deadline,
+      status,
+      statusType: typeof status
+    });
+    
     // Verificar que la tarea existe
     const [existing] = await pool.query(
-      "SELECT * FROM task WHERE id = ?",
+      "SELECT * FROM Task WHERE id = ?",
       [req.params.id]
     );
     
@@ -76,9 +83,11 @@ export const updateTask = async (req, res) => {
     }
     
     await pool.query(
-      "UPDATE task SET name = ?, deadline = ?, status = ? WHERE id = ?",
+      "UPDATE Task SET name = ?, deadline = ?, status = ? WHERE id = ?",
       [name, deadline || null, status ? 1 : 0, req.params.id]
     );
+    
+    console.log('✅ Tarea actualizada exitosamente');
     
     res.json({ 
       message: "Tarea actualizada exitosamente",
