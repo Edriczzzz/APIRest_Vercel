@@ -74,7 +74,7 @@ export const updateTask = async (req, res) => {
     
     // Verificar que la tarea existe
     const [existing] = await pool.query(
-      "SELECT * FROM Task WHERE id = ?",
+      "SELECT * FROM task WHERE id = ?",
       [req.params.id]
     );
     
@@ -83,7 +83,7 @@ export const updateTask = async (req, res) => {
     }
     
     await pool.query(
-      "UPDATE Task SET name = ?, deadline = ?, status = ? WHERE id = ?",
+      "UPDATE task SET name = ?, deadline = ?, status = ? WHERE id = ?",
       [name, deadline || null, status ? 1 : 0, req.params.id]
     );
     
